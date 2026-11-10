@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,7 @@ import com.nimbusds.jwt.SignedJWT;
 @Component
 public class AppleIdentityTokenVerifierImpl implements AppleIdentityTokenVerifier {
 
+    private static final Logger log = LoggerFactory.getLogger(AppleIdentityTokenVerifierImpl.class);
     private static final Duration KEY_CACHE_TTL = Duration.ofHours(1);
     private static final String INVALID_CODE = "INVALID_APPLE_TOKEN";
 
@@ -73,6 +76,7 @@ public class AppleIdentityTokenVerifierImpl implements AppleIdentityTokenVerifie
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
+            log.warn("Apple 토큰 해석 실패: {}", e.getClass().getSimpleName());
             throw invalid("Apple 토큰을 해석할 수 없습니다");
         }
     }
@@ -100,6 +104,7 @@ public class AppleIdentityTokenVerifierImpl implements AppleIdentityTokenVerifie
             cachedAt = Instant.now();
             return cachedKeys;
         } catch (Exception e) {
+            log.warn("Apple 공개키 조회 실패: {}", e.getClass().getSimpleName());
             throw invalid("Apple 공개키를 가져오지 못했습니다");
         }
     }
