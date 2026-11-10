@@ -20,6 +20,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(ApiException ex, HttpServletRequest request) {
+        if (ex.getStatus() == HttpStatus.UNAUTHORIZED) {
+            log.warn("인증 거절 code={} reason={} path={} request_id={}",
+                    ex.getCode(), ex.getMessage(), request.getRequestURI(), RequestIdFilter.current(request));
+        }
         return ResponseEntity.status(ex.getStatus())
                 .body(new ErrorResponse(ex.getCode(), ex.getMessage(), RequestIdFilter.current(request)));
     }
